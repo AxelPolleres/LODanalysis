@@ -1,6 +1,6 @@
 from collections import defaultdict
 import requests
-
+import sys
 import json
 import simplejson
 
@@ -51,6 +51,7 @@ for ds in datasets:
             else:
                 dumpurls[address]=x
             print(str(cnt)+": "+address)
+            sys.stdout.flush()
             f=x['format'].lower()
             if ("ttl" in f) or ("turtle" in f) or ("ntriples" in f) or ("n-triples" in f):
                 x['guessedformat']='ttl'
@@ -106,8 +107,6 @@ for ds in datasets:
                 x['guessedsuffix']='jsonld'
             elif s.endswith(('pdf','csv','tsv')):
                 x['guessedsuffix']='x_pdf_csv_tsv'
-            elif 'sparql' in s:
-                x['guessedsuffix']='sparql'
             elif len(s.split('.')[-1])<10:
                 x['guessedsuffix']='othersuffix'
             else:
@@ -122,6 +121,18 @@ for ds in datasets:
 
             suffixes[x['guessedsuffix']].append(s)
 
+            #Does the address contain the string "sparql"? 
+            if 'sparql' in s:
+                x['guessedsparql'] = True
+            else:
+                x['guessedsparql'] = False
+                
+            #Does the address contain the string "dump"? 
+            if 'dump' in s:
+                x['guesseddump'] = True
+            else:
+                x['guesseddump'] = False
+            
             # Check where the guessed format matches the guessed suffix:                
             if(x['guessedsuffix'].startswith('x_')):
                 x['readableformat']='nonreadable'
@@ -132,7 +143,7 @@ for ds in datasets:
                 
             if x['readableformat'] != 'nonreadable':
                 try:
-                    resp = requests.head(address, allow_redirects=True, stream=True, headers = {"Range": "bytes=0-1000"})
+                    resp = requests.head(address, allow_redirects=True, stream=True, timeout=10, headers = {"Range": "bytes=0-10000"})
                     if (resp.status_code == 200) or (resp.status_code == 206):
                         x['headresponse']=resp.status_code
                         print("OK")
