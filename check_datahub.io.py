@@ -114,7 +114,7 @@ for ds in datasets:
 
             if x['guessedsuffix'] in ['tgz','gz','bz','zip']:
                 if len(s.split('.')[-2]) < 6:
-                    if(s.split('.')[-2] in ['nt','ttl','rdf','hdt','nq','trig']):
+                    if(s.split('.')[-2] in ['nt','ttl','rdf','owl','hdt','nq','trig']):
                         x['guessedsuffix']=s.split('.')[-2]+"."+x['guessedsuffix']
                     else:
                         x['guessedsuffix']="x_"+x['guessedsuffix']
