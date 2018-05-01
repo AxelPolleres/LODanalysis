@@ -110,14 +110,16 @@ for ds in datasets:
             elif len(s.split('.')[-1])<10:
                 x['guessedsuffix']='othersuffix'
             else:
-                x['guessedsuffix']='nosuffix'                
+                x['guessedsuffix']='nosuffix'
+
             if x['guessedsuffix'] in ['tgz','gz','bz','zip']:
                 if len(s.split('.')[-2]) < 6:
-                    if(s.split('.')[-2] in ['nt','ttl','rdf','hdt','nq']):
+                    if(s.split('.')[-2] in ['nt','ttl','rdf','hdt','nq','trig']):
                         x['guessedsuffix']=s.split('.')[-2]+"."+x['guessedsuffix']
-                else:
-                    x['guessedsuffix']="x_"+x['guessedsuffix']
-                    del dumpurls[address]
+                    else:
+                        x['guessedsuffix']="x_"+x['guessedsuffix']
+                        # do not consider unparseable zipped URLs?
+                        # del dumpurls[address]
 
             suffixes[x['guessedsuffix']].append(s)
 
