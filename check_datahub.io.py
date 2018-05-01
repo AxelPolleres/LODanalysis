@@ -94,7 +94,7 @@ for ds in datasets:
             elif s.endswith('hdt'):
                 x['guessedsuffix']='hdt'
             elif s.endswith(('htm','html')):
-                x['guessedsuffix']='x_html'
+                x['guessedsuffix']='html'
             elif s.endswith(('ttl','turtle','nt','ntriples')):
                 x['guessedsuffix']='ttl'
             elif s.endswith(('nq','nquad','nquads')):
