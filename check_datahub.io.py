@@ -67,6 +67,8 @@ for ds in datasets:
                 x['guessedformat']='sparql'
             elif ("html" in f):
                 x['guessedformat']='html'
+            elif ("xml" in f):
+                x['guessedformat']='xml'
             else:
                 x['guessedformat']='otherformat'
             formats[x['guessedformat']].append(f)
@@ -95,6 +97,8 @@ for ds in datasets:
                 x['guessedsuffix']='hdt'
             elif s.endswith(('htm','html')):
                 x['guessedsuffix']='html'
+            elif s.endswith(('xml')):
+                x['guessedsuffix']='xml'
             elif s.endswith(('ttl','turtle','nt','ntriples')):
                 x['guessedsuffix']='ttl'
             elif s.endswith(('nq','nquad','nquads')):
