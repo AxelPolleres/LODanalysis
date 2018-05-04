@@ -1,6 +1,6 @@
 from collections import defaultdict
 import requests
-import requests-ftp
+import requests_ftp
 import sys
 import json
 import simplejson
