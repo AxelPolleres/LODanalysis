@@ -159,7 +159,7 @@ for ds in datasets:
                     elif  address.startswith('ftp'):
                         # We "emulate" a head request for FTP by just listing the enclosing directory for a file.
                         address_dir=address[0:address.rfind('/')+1]
-                        resp = s.list(address_dir)
+                        resp = requests.Session().list(address_dir, timeout=10)
                         if (resp.status_code/100 >= 200 and resp.status_code/100 < 300):
                             x['headresponse']=resp.status_code
                             print("OK")
