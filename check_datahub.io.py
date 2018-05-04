@@ -162,8 +162,8 @@ for ds in datasets:
                         else:
                             print("Response-status: "+str(resp.status_code)+":\n "+str(resp.headers))
                             x['headerr']=resp.json()
-		    else:
-			x['headerr']="unknown protocol (non http(s) nor ftp)"
+                    else:
+                        x['headerr']="unknown protocol (non http(s) nor ftp)"
                 except simplejson.errors.JSONDecodeError:
                     x['headerr']="JSON decode errorfor response: "+address+" : "+str(resp.raw.read(100))
                 except requests.exceptions.HTTPError as errh:
