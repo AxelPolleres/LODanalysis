@@ -162,7 +162,6 @@ for ds in datasets:
                         resp = requests.Session().list(address_dir, timeout=10)
                         if (resp.status_code/100 >= 200 and resp.status_code/100 < 300):
                             x['headresponse']=resp.status_code
-                            print("OK")
                         else:
                             print("Response-status: "+str(resp.status_code)+":\n "+str(resp.headers))
                             x['headerr']=resp.json()
@@ -182,23 +181,14 @@ for ds in datasets:
                     x['headerr']=address+" raised error: Http Error:"+str(err)
             
 
-            #TODO: do something about the responses...
-            if 'headresponse' in x: 
-                if x['readableformat']=='rdfxml':
-                    print(resp)
-                elif x['readableformat']=='ttl':
-                    pass
-                elif x['readableformat']=='nq':
-                    pass
-                elif x['readableformat']=='jsonld':
-                    pass
-                else:
-                    pass
-            elif 'headerr' in x:
-                print(x['headerr'])
-            else: 
-                print("ERROR: something went wrong here!!!!")
-                break
+                #TODO: this doesn't work, not sure why...
+                #if 'headresponse' in x: 
+                #    print("OK")
+                #elif 'headerr' in x:
+                #    print(x['headerr'])
+                #else:
+                #    print("ERROR: something went wrong here!!!!")
+                #    break
 
 
 print("#total/#distinct URLs: "+str(cnt)+"/"+str(len(dumpurls)))
