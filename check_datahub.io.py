@@ -47,6 +47,10 @@ for ds in datasets:
         for x in i['resources']:
             cnt = cnt+1
             address = x['url'].strip()
+            # this is mainly to address a strenage URLs that have spaces or contain wrong protocols in it...
+            address = address.replace(" ", "")
+            address = address.replace("http://ftp://","ftp://")
+
             if address in dumpurls:
                 break
             else:
