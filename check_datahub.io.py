@@ -168,6 +168,8 @@ for ds in datasets:
                             x['headerr']=resp.json()
                     else:
                         x['headerr']="unknown protocol (non http(s) nor ftp)"
+                except AttributeError as attrerr:
+                    x['headerr']=address+" raised error:"+str(attrerr)
                 except simplejson.errors.JSONDecodeError:
                     x['headerr']="JSON decode errorfor response: "+address+" : "+str(resp.raw.read(100))
                 except requests.exceptions.HTTPError as errh:
@@ -179,6 +181,7 @@ for ds in datasets:
                 except requests.exceptions.RequestException as err:
                     x['headerr']=address+" raised error: Http Error:"+str(err)
             
+
             #TODO: do something about the responses...
             if 'headresponse' in x: 
                 if x['readableformat']=='rdfxml':
@@ -191,6 +194,12 @@ for ds in datasets:
                     pass
                 else:
                     pass
+            elif 'headerr' in x:
+                print(x['headerr'])
+            else: 
+                print("ERROR: something went wrong here!!!!")
+                break
+
 
 print("#total/#distinct URLs: "+str(cnt)+"/"+str(len(dumpurls)))
 print("Guessed formats: "+str([(l,len(formats[l])) for l in formats]))
