@@ -7,7 +7,7 @@ from SPARQLWrapper import SPARQLWrapper, JSON
 
 
 # uncomment to load datasets from a local file
-with open('/Users/apollere/Documents/software/my_github_forks/LODanalysis/lod_datahub.io_enrichted.json', 'r', encoding='UTF-8') as fp:
+with open('lod_datahub.io_enrichted.json', 'r', encoding='UTF-8') as fp:
     datasets=json.load(fp)
 
 createcsv=True
