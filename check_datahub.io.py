@@ -153,9 +153,10 @@ for ds in datasets:
                     if address.startswith('http'):
                         resp = requests.head(address, allow_redirects=True, stream=True, timeout=10, headers = {"Range": "bytes=0-10000"})
                     elif  address.startswith('ftp'):
+                        # We "emulate" a head request for FTP by just listing the enclosing directory for a file.
                         address_dir=address[0:address.rfind('/')+1]
-                        resp = s.list(address)
-                    if (resp.status_code/100 >= 200 and resp.status_code/100 < 300):
+                        resp = s.list(address_dir)
+                        if (resp.status_code/100 >= 200 and resp.status_code/100 < 300):
                             x['headresponse']=resp.status_code
                             print("OK")
                         else:
