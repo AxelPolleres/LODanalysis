@@ -1,5 +1,6 @@
 from collections import defaultdict
 import requests
+import requests-ftp
 import sys
 import json
 import simplejson
@@ -149,13 +150,19 @@ for ds in datasets:
                 
             if x['readableformat'] != 'nonreadable':
                 try:
-                    resp = requests.head(address, allow_redirects=True, stream=True, timeout=10, headers = {"Range": "bytes=0-10000"})
-                    if (resp.status_code == 200) or (resp.status_code == 206):
-                        x['headresponse']=resp.status_code
-                        print("OK")
-                    else:
-                        print("Response-status: "+str(resp.status_code)+":\n "+str(resp.headers))
-                        x['headerr']=resp.json()
+                    if address.startswith('http'):
+                        resp = requests.head(address, allow_redirects=True, stream=True, timeout=10, headers = {"Range": "bytes=0-10000"})
+                    elif  address.startswith('ftp'):
+                        address_dir=address[0:address.rfind('/')+1]
+                        resp = s.list(address)
+                    if (resp.status_code/100 >= 200 and resp.status_code/100 < 300):
+                            x['headresponse']=resp.status_code
+                            print("OK")
+                        else:
+                            print("Response-status: "+str(resp.status_code)+":\n "+str(resp.headers))
+                            x['headerr']=resp.json()
+		    else:
+			x['headerr']="unknown protocol (non http(s) nor ftp)"
                 except simplejson.errors.JSONDecodeError:
                     x['headerr']="JSON decode errorfor response: "+address+" : "+str(resp.raw.read(100))
                 except requests.exceptions.HTTPError as errh:
