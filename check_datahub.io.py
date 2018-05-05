@@ -126,9 +126,7 @@ for ds in datasets:
                     if(s.split('.')[-2] in ['nt','ttl','rdf','owl','hdt','nq','trig']):
                         x['guessedsuffix']=s.split('.')[-2]+"."+x['guessedsuffix']
                     else:
-                        x['guessedsuffix']="x_"+x['guessedsuffix']
-                        # do not consider unparseable zipped URLs?
-                        # del dumpurls[address]
+                        pass
 
             suffixes[x['guessedsuffix']].append(s)
 
@@ -158,9 +156,10 @@ for ds in datasets:
                     if address.startswith('http'):
                         resp = requests.head(address, allow_redirects=True, stream=True, timeout=10, headers = {"Range": "bytes=0-10000"})
                     elif  address.startswith('ftp'):
+                        requests_ftp.monkeypatch_session()
                         # We "emulate" a head request for FTP by just listing the enclosing directory for a file.
                         address_dir=address[0:address.rfind('/')+1]
-                        resp = requests.Session().list(address_dir, timeout=10)
+                        resp = requests.Session().nlst(address_dir, timeout=20)
                     else:
                         x['headerr']="unknown protocol (non http(s) nor ftp)"
                         print("y")
