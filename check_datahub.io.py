@@ -152,6 +152,7 @@ for ds in datasets:
             else:
                 x['readableformat']='check'
                 
+ 
             if x['readableformat'] != 'nonreadable':
                 try:
                     if address.startswith('http'):
@@ -160,13 +161,15 @@ for ds in datasets:
                         # We "emulate" a head request for FTP by just listing the enclosing directory for a file.
                         address_dir=address[0:address.rfind('/')+1]
                         resp = requests.Session().list(address_dir, timeout=10)
-                        if (resp.status_code/100 >= 200 and resp.status_code/100 < 300):
-                            x['headresponse']=resp.status_code
-                        else:
-                            print("Response-status: "+str(resp.status_code)+":\n "+str(resp.headers))
-                            x['headerr']=resp.json()
                     else:
                         x['headerr']="unknown protocol (non http(s) nor ftp)"
+                        print("y")
+                    
+                    if (resp.status_code >= 200 and resp.status_code < 300):
+                        x['headresponse']=resp.status_code
+                    else:
+                        x['headerr']=("Response-status: "+str(resp.status_code)+":\n "+str(resp.headers))
+
                 except AttributeError as attrerr:
                     x['headerr']=address+" raised error:"+str(attrerr)
                 except simplejson.errors.JSONDecodeError:
@@ -181,14 +184,13 @@ for ds in datasets:
                     x['headerr']=address+" raised error: Http Error:"+str(err)
             
 
-                #TODO: this doesn't work, not sure why...
-                #if 'headresponse' in x: 
-                #    print("OK")
-                #elif 'headerr' in x:
-                #    print(x['headerr'])
-                #else:
-                #    print("ERROR: something went wrong here!!!!")
-                #    break
+                if 'headresponse' in x: 
+                    print("OK")
+                elif 'headerr' in x:
+                    print(x['headerr'])
+                else:
+                    print("ERROR: something went wrong here!!!!")
+                    break
 
 
 print("#total/#distinct URLs: "+str(cnt)+"/"+str(len(dumpurls)))
