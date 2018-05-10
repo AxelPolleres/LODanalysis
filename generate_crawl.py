@@ -10,8 +10,8 @@ from SPARQLWrapper import SPARQLWrapper, JSON
 with open('lod_datahub.io_enrichted.json', 'r', encoding='UTF-8') as fp:
     datasets=json.load(fp)
 
-createcsv=True
-#createcsv=False
+# createcsv=True
+createcsv=False
 #if createcsv==True:
 #    print('"curl";"address";id;"bio";"guessedsparql";"guesseddum";"guessedsitemap";"guessedvoid";"guessedsuffix"')
 
@@ -35,6 +35,9 @@ qlookup_enc = 'query=SELECT+%3FX+WHERE+%7B+%3FX+%3Chttp%3A%2F%2Fwww.example.org%
 qtriplecount_enc = 'query=SELECT+(count(*)+AS+%3FC)+WHERE+%7B%3FS+%3FP+%3FO%7D'
 qquadcount_enc = 'query=SELECT+(count(*)+AS+%3FC)+WHERE+%7BGRAPH+%3FG+%7B%3FS+%3FP+%3FO%7D%7D'
 
+formats = defaultdict(list)
+suffixes = defaultdict(list)
+
 
 for ds in datasets:
     for i in ds['results']:
@@ -51,6 +54,13 @@ for ds in datasets:
             rcnt = rcnt+1
             address = x['url'].strip()
             s=address.lower()
+            if 'guessedsuffix' in x:
+                suffixes[x['guessedsuffix']].append(s)
+            if 'guessedformat' in x:
+                f=x['format'].lower()
+                formats[x['guessedformat']].append(f)
+
+
             #Does the address contain the string "sparql"? 
             
             if 'sparql' in s:
