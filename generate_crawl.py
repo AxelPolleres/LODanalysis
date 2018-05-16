@@ -10,7 +10,7 @@ from SPARQLWrapper import SPARQLWrapper, JSON
 with open('lod_datahub.io_enrichted.json', 'r', encoding='UTF-8') as fp:
     datasets=json.load(fp)
 
-# createcsv=True
+#createcsv=True
 createcsv=False
 #if createcsv==True:
 #    print('"curl";"address";id;"bio";"guessedsparql";"guesseddum";"guessedsitemap";"guessedvoid";"guessedsuffix"')
@@ -37,7 +37,7 @@ qquadcount_enc = 'query=SELECT+(count(*)+AS+%3FC)+WHERE+%7BGRAPH+%3FG+%7B%3FS+%3
 
 formats = defaultdict(list)
 suffixes = defaultdict(list)
-
+suffix_or_format = defaultdict(list)
 
 for ds in datasets:
     for i in ds['results']:
@@ -54,15 +54,25 @@ for ds in datasets:
             rcnt = rcnt+1
             address = x['url'].strip()
             s=address.lower()
+            suffix='other'
             if 'guessedsuffix' in x:
                 suffixes[x['guessedsuffix']].append(s)
+                if x['guessedsuffix'] not in  ['othersuffix','nosuffix']:
+                    suffix = x['guessedsuffix']
+            format = "other"
             if 'guessedformat' in x:
                 f=x['format'].lower()
                 formats[x['guessedformat']].append(f)
+                if x['guessedformat'] != 'otherformat':
+                    format = x['guessedformat']
 
 
             #Does the address contain the string "sparql"? 
-            
+            if suffix != 'other':
+                suffix_or_format[suffix].append(str(i))
+            else:
+                suffix_or_format[format].append(str(i))
+
             if 'sparql' in s:
                 x['guessedsparql'] = True
             else:
@@ -73,7 +83,7 @@ for ds in datasets:
                 x['guesseddump'] = True
             else:
                 x['guesseddump'] = False
-            
+
             if ('sitemap.xml' in s):
                 x['guessedsitemap'] = True
             else:
@@ -117,6 +127,7 @@ for ds in datasets:
                       
                 sys.stdout.flush()
 
+
         if dhcnt>0:
             drdcnt=drdcnt+1
 
@@ -127,9 +138,12 @@ if createcsv==False:
     print("Among those, some TODO are just examples rdf files with less than 1000 triples, which is the lower limit")
     print("according to http://lod-cloud.net/#about")
     print("That is, "+ str(drdcnt)+" dataset descriptions contain dereferenceable resource URLs;")
-    print("i.e., "+ str(dcnt-drdcnt)+" dataset descriptions contain no dereferenceable resource URLs (not counting links to HTML, PDF, CSV, TSV, though).")
+    print("i.e., "+ str(dcnt-drdcnt)+" dataset descriptions contain no dereferenceable resource URLs (not counting links to PDF, CSV, TSV files).")
     print("Admittedly, the HTMLs *could* contain RDFa or links to RDF, and HTMLs *could* also have links to actual RDF/LinkedData content, but this is not very machine-friendly, as it would need to do a site crawl.")
     print("Among all datasets "+str(biocnt)+" have tags that hint to the Biomedical and LifeSciences domain")
     print("Guessed formats: "+str([(l,len(formats[l])) for l in formats]))
     print("Guessed suffixes: "+str([(l,len(suffixes[l])) for l in suffixes]))
+    print("Guessed formats or suffixes aggregated:")
+    for l in suffix_or_format:
+       print(str(l) + ';' + str(len(suffix_or_format[l])))
 
