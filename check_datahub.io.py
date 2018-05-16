@@ -104,7 +104,7 @@ for ds in datasets:
                 x['guessedsuffix']='html'
             elif s.endswith(('xml')):
                 x['guessedsuffix']='xml'
-            elif s.endswith(('ttl','turtle','.nt,'ntriples')):
+            elif s.endswith(('ttl','turtle','.nt','ntriples')):
                 x['guessedsuffix']='ttl'
             elif s.endswith(('nq','nquad','nquads')):
                 x['guessedsuffix']='nq'
