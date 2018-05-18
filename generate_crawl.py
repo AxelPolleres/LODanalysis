@@ -10,8 +10,8 @@ from SPARQLWrapper import SPARQLWrapper, JSON
 with open('lod_datahub.io_enrichted.json', 'r', encoding='UTF-8') as fp:
     datasets=json.load(fp)
 
-#createcsv=True
-createcsv=False
+createcsv=True
+#createcsv=False
 #if createcsv==True:
 #    print('"curl";"address";id;"bio";"guessedsparql";"guesseddum";"guessedsitemap";"guessedvoid";"guessedsuffix"')
 
@@ -26,11 +26,17 @@ biocnt=0
 address=""
 
 qask = 'ASK {?S ?P ?O . }'
+qask1 = 'ASK {}'
+qask2 = 'ASK {GRAPH ?G {?S ?P ?O . }}'
+qask3 = 'ASK {GRAPH ?G {}}'
 qlookup = 'SELECT ?X WHERE { ?X <http://www.example.org> <http://www.example.org> . }'
 qtriplecount = 'SELECT (count(*) AS ?C) WHERE  {?S ?P ?O . }'
 qquadcount = 'SELECT (count(*) AS ?C) WHERE  { GRAPH ?G { ?S ?P ?O . }}'
 
-qask_enc = 'query=ASK%7B%3FS+%3FP+%3FO%7D'
+qask_enc = 'query=ASK+%7B%3FS+%3FP+%3FO+.+%7D'
+qask1_enc = 'query=ASK+%7B%7D'
+qask2_enc = 'query=ASK+%7BGRAPH+%3FG+%7B%3FS+%3FP+%3FO+.+%7D%7D'
+qask3_enc = 'query=ASK+%7BGRAPH+%3FG+%7B%7D%7D'
 qlookup_enc = 'query=SELECT+%3FX+WHERE+%7B+%3FX+%3Chttp%3A%2F%2Fwww.example.org%3E+%3Chttp%3A%2F%2Fwww.example.org%3E+%7D'
 qtriplecount_enc = 'query=SELECT+(count(*)+AS+%3FC)+WHERE+%7B%3FS+%3FP+%3FO%7D'
 qquadcount_enc = 'query=SELECT+(count(*)+AS+%3FC)+WHERE+%7BGRAPH+%3FG+%7B%3FS+%3FP+%3FO%7D%7D'
@@ -96,25 +102,52 @@ for ds in datasets:
             
             #print(address)
             #TODO: do something about the responses...
-            if 'headresponse' in x: 
+
+            if 'headresponse' in x:
                 hcnt = hcnt+1
                 dhcnt = dhcnt+1
                 if createcsv==True:
                     curl=""
                     if x['guessedsparql'] and not x['guessedsitemap'] and not x['guesseddump']and x['guessedsuffix'] not in ['ttl','trig','nt']:
-                            # this is mainly to address a strenage URL that has a space in it...
-                            address = address.replace(" ", "")
-                            # strip off everything after "?" (some urls have already queries encoded)
-                            address = address.split('?')[0]
-                            # TODO the preferred headers could be configured based on guessed format/suffix"!!!
-                            # ... at the moment I just try to get RDF if I can
-                            curl="curl -L "+'"'+address+'?'+qask_enc+'" -o '+x['id']+'_sparqlask'  
-                    else:
-                            curl="curl -L -H 'Accept: text/turtle, application/n-triples, application/trig, application/n-quads, application/rdf+xml, *'"+' "'+address+'" -o '+x['id']
-                    #if bio:
+                        # this is mainly to address a strenage URL that has a space in it...
+                        address = address.replace(" ", "")
+                        address = address.split('?')[0]
+                        if (address.endswith('.html') or address.endswith('.tpl')):
+                            address = address[0:address.rfind('/')+1]+'sparql'
+                        # strip off everything after "?" (some urls have already queries encoded)
+                        if not ( address.endswith('sparql') or address.endswith('sparql/')):
+                            if not address.endswith('/'):
+                                address = address + '/'
+                            address = address+'sparql'
+
+                        # TODO the preferred headers could be configured based on guessed format/suffix"!!!
+                        # ... at the moment I just try to get RDF if I can
+                        q="curl -L "+'"'+address+'?'
+                        curl=q+qask_enc+'" -o '+x['id']+'_sparql_qask'
+                        print(curl)
+                        curl=q+qask1_enc+'" -o '+x['id']+'_sparql_qask1'
+                        print(curl)
+                        curl=q+qask2_enc+'" -o '+x['id']+'_sparql_qask2'
+                        print(curl)
+                        curl=q+qask3_enc+'" -o '+x['id']+'_sparql_qask3'
+                        print(curl)
+                        curl = q+qlookup_enc+ '" -o ' + x['id'] + '_sparql_qlookup'
+                        print(curl)
+                        curl = q + qtriplecount_enc + '" -o ' + x['id'] + '_sparql_qtriplecount'
+                        print(curl)
+                        curl = q + qquadcount_enc + '" -o ' + x['id'] + '_sparql_qquadcount'
+                        print(curl)
+
+                    curl="curl -L -H 'Accept: text/turtle, application/n-triples, application/trig, application/n-quads, application/rdf+xml, *'"+' "'+address+'" -o '+x['id']
+                    print(curl)
+                    # if bio:
                     #    print(curl)
+
+                    # TODO:
                     print(curl+';"'+address+'";'+x['id']+';'+str(bio)+';'+str(x['guessedsparql'])+';'+str(x['guesseddump'])+';'+str(x['guessedsitemap'])+';'+str(x['guessedvoid'])+';"'+x['guessedsuffix']+'"')
-                    # The dataset must contain at least 1000 triples. (Hence, your FOAF file most likely does not qualify.)
+
+
+                # The dataset must contain at least 1000 triples. (Hence, your FOAF file most likely does not qualify.)
                     #if x['readableformat'] in ['rdfxml','hdt','ttl','nq','trig','jsonld']:
                     #    if createcsv==True:
                     #        print('curl "'+s+'" -o '+x['id']+';"'+address+'";'+x['id']+';"'+x['guessedsuffix']+'"')
