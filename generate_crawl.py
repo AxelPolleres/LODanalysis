@@ -2,6 +2,7 @@ from collections import defaultdict
 import requests
 import sys
 import json
+import csv
 import simplejson
 from SPARQLWrapper import SPARQLWrapper, JSON
 
@@ -10,10 +11,14 @@ from SPARQLWrapper import SPARQLWrapper, JSON
 with open('lod_datahub.io_enrichted.json', 'r', encoding='UTF-8') as fp:
     datasets=json.load(fp)
 
+
+
 createcsv=True
 #createcsv=False
-#if createcsv==True:
-#    print('"curl";"address";id;"bio";"guessedsparql";"guesseddum";"guessedsitemap";"guessedvoid";"guessedsuffix"')
+if createcsv==True:
+    with open('crawl.csv', 'w', encoding='UTF-8') as fp:
+        csvw = csv.writer(fp)
+        csvw.writerow(["address","id","bio","guessedsparql","guesseddump","guessedsitemap","guessedvoid","guessedsuffix"])
 
 # Find out which datasets in the LOD cloud fulfill the following condition:
 # The dataset must contain at least 1000 triples. (Hence, your FOAF file most likely does not qualify.)
@@ -124,27 +129,29 @@ for ds in datasets:
                         # ... at the moment I just try to get RDF if I can
                         q="curl -L "+'"'+address+'?'
                         curl=q+qask_enc+'" -o '+x['id']+'_sparql_qask'
-                        print(curl)
+                        #print(curl)
                         curl=q+qask1_enc+'" -o '+x['id']+'_sparql_qask1'
-                        print(curl)
+                        #print(curl)
                         curl=q+qask2_enc+'" -o '+x['id']+'_sparql_qask2'
-                        print(curl)
+                        #print(curl)
                         curl=q+qask3_enc+'" -o '+x['id']+'_sparql_qask3'
-                        print(curl)
+                        #print(curl)
                         curl = q+qlookup_enc+ '" -o ' + x['id'] + '_sparql_qlookup'
-                        print(curl)
+                        #print(curl)
                         curl = q + qtriplecount_enc + '" -o ' + x['id'] + '_sparql_qtriplecount'
-                        print(curl)
+                        #print(curl)
                         curl = q + qquadcount_enc + '" -o ' + x['id'] + '_sparql_qquadcount'
-                        print(curl)
+                        #print(curl)
 
                     curl="curl -L -H 'Accept: text/turtle, application/n-triples, application/trig, application/n-quads, application/rdf+xml, *'"+' "'+address+'" -o '+x['id']
                     print(curl)
-                    # if bio:
+                    #if bio:
                     #    print(curl)
 
-                    # TODO:
-                    print(curl+';"'+address+'";'+x['id']+';'+str(bio)+';'+str(x['guessedsparql'])+';'+str(x['guesseddump'])+';'+str(x['guessedsitemap'])+';'+str(x['guessedvoid'])+';"'+x['guessedsuffix']+'"')
+                    # TODO: fix this to write it our into a separate file:
+                    with open('crawl.csv', 'a', encoding='UTF-8') as fp:
+                        csvw = csv.writer(fp)
+                        csvw.writerow([address,x['id'],str(bio),str(x['guessedsparql']),str(x['guesseddump']),str(x['guessedsitemap']),str(x['guessedvoid']),x['guessedsuffix']])
 
 
                 # The dataset must contain at least 1000 triples. (Hence, your FOAF file most likely does not qualify.)
@@ -179,4 +186,12 @@ if createcsv==False:
     print("Guessed formats or suffixes aggregated:")
     for l in suffix_or_format:
        print(str(l) + ';' + str(len(suffix_or_format[l])))
-
+    print("If you wanrt to actually create a crawl, set createcsv to true in the beginning of the script")
+    print("and pipe the resulting curls to crawl.sh")
+    print("Then you can run the following to create stats from the crawl results:")
+    print(' grep "true" *qask -c |sed -e "s/:/;/g" | grep ";1" > sparql_qask.csv')
+    print(' grep "true" *qask1 -c |sed -e "s/:/;/g" | grep ";1" > sparql_qask1.csv')
+    print(' grep "true" *qask2 -c |sed -e "s/:/;/g" | grep ";1" > sparql_qask2.csv')
+    print(' grep "true" *qask3 -c |sed -e "s/:/;/g" | grep ";1" > sparql_qask3.csv')
+    print(' egrep ">[0-9]+<" -o *_qtriplecount |sed -e "s/:/;/g" -e  "s/[<>]//g" > sparql_qtriplecount.csv')
+    print(' egrep ">[0-9]+<" -o *_qquadcount |sed -e "s/:/;/g" -e  "s/[<>]//g" > sparql_qquadcount.csv')
