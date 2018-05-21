@@ -51,3 +51,7 @@ for ds in datasets:
             voidcnt = voidcnt+1
         dscnt = dscnt+1
 
+        with open('lod_datahub.io_enrichted_plus_void.json', 'w', encoding='UTF-8') as fp:
+            json.dump(datasets, fp)
+
+print(str(dscnt)+" Datasets / "+ str(voidcnt))
