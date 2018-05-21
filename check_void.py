@@ -29,7 +29,6 @@ for ds in datasets:
                     # print("curl -L  -H 'Accept: text/turtle, application/n-triples, application/trig, application/n-quads, application/rdf+xml, *' "+void_address+" -o "+slashes_address[2]+'_void')
                     try:
                         resp = requests.get(void_address, allow_redirects=True, stream=True, timeout=20)
-                        print(resp)
                         if (resp.status_code >= 200 and resp.status_code < 300):
                             x['voidresponse'] = resp
                             print(resp)
