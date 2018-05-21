@@ -27,14 +27,27 @@ for ds in datasets:
                 else:
                     x['void_address']= void_address
                     # print("curl -L  -H 'Accept: text/turtle, application/n-triples, application/trig, application/n-quads, application/rdf+xml, *' "+void_address+" -o "+slashes_address[2]+'_void')
-                    resp = requests.get(void_address, allow_redirects=True, stream=True, timeout=20)
-                    print(resp)
-                    if (resp.status_code >= 200 and resp.status_code < 300):
-                        x['voidresponse'] = resp
+                    try:
+                        resp = requests.get(void_address, allow_redirects=True, stream=True, timeout=20)
                         print(resp)
-                        hasvoid = True
-                    else:
-                        x['voiderr']=("Response-status: "+str(resp.status_code)+":\n "+str(resp.headers))
+                        if (resp.status_code >= 200 and resp.status_code < 300):
+                            x['voidresponse'] = resp
+                            print(resp)
+                            hasvoid = True
+                        else:
+                            x['voiderr']=("Response-status: "+str(resp.status_code)+":\n "+str(resp.headers))
+                    except AttributeError as attrerr:
+                        x['voiderr'] = address + " raised error:" + str(attrerr)
+                    except simplejson.errors.JSONDecodeError:
+                        x['voiderr'] = "JSON decode errorfor response: " + address + " : " + str(resp.raw.read(100))
+                    except requests.exceptions.HTTPError as errh:
+                        x['voiderr'] = address + " raised error: Http Error:" + str(errh)
+                    except requests.exceptions.ConnectionError as errc:
+                        x['voiderr'] = address + " raised error: Http Error:" + str(errc)
+                    except requests.exceptions.Timeout as errt:
+                        x['voiderr'] = address + " raised error: Http Error:" + str(errt)
+                    except requests.exceptions.RequestException as err:
+                        x['voiderr'] = address + " raised error: Http Error:" + str(err)
         if hasvoid:
             voidcnt = voidcnt+1
         dscnt = dscnt+1
