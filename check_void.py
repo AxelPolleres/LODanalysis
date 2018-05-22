@@ -16,6 +16,8 @@ dscnt = 0
 
 for ds in datasets:
     for i in ds['results']:
+        print("Dataset "+str(dscnt))
+        sys.stdout.flush()
         hasvoid=False
         for x in i['resources']:
             address = x['url'].strip()
@@ -30,7 +32,7 @@ for ds in datasets:
                     try:
                         resp = requests.get(void_address, allow_redirects=True, stream=True, timeout=20)
                         if (resp.status_code >= 200 and resp.status_code < 300):
-                            x['voidresponse'] = resp
+                            x['voidresponse'] = str(resp.content)
                             print(resp)
                             hasvoid = True
                         else:
